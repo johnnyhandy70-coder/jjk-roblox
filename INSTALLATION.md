@@ -8,21 +8,21 @@ In Roblox Studio:
 1. Open ReplicatedStorage in Explorer
 2. Insert a new Folder
 3. Rename it to `JJKShared`
-4. Inside `JJKShared`, create 3 ModuleScripts:
-   - Name them: `Config`, `CharacterData`, `AbilityData`
+4. Inside `JJKShared`, create 4 ModuleScripts:
+   - Name them: `Config`, `CharacterData`, `AbilityData`, `AbilityHandler`
 5. Copy the code from the corresponding files:
    - `src/shared/Config.lua` → `Config` ModuleScript
    - `src/shared/CharacterData.lua` → `CharacterData` ModuleScript
    - `src/shared/AbilityData.lua` → `AbilityData` ModuleScript
+   - `src/shared/AbilityHandler.lua` → `AbilityHandler` ModuleScript
 
 ### 2. Setup Server Scripts
 
 1. Open ServerScriptService in Explorer
-2. Create 2 Scripts (NOT LocalScripts):
-   - Name them: `PlayerData` and `AbilityHandler`
+2. Create 1 Script (NOT LocalScript):
+   - Name it: `PlayerData`
 3. Copy the code:
    - `src/server/PlayerData.server.lua` → `PlayerData` Script
-   - `src/server/AbilityHandler.server.lua` → `AbilityHandler` Script
 
 ### 3. Setup Client Scripts
 
@@ -90,11 +90,11 @@ ReplicatedStorage
 └── JJKShared (Folder)
     ├── Config (ModuleScript)
     ├── CharacterData (ModuleScript)
-    └── AbilityData (ModuleScript)
+    ├── AbilityData (ModuleScript)
+    └── AbilityHandler (ModuleScript)
 
 ServerScriptService
-├── PlayerData (Script)
-└── AbilityHandler (Script)
+└── PlayerData (Script)
 
 StarterPlayer
 └── StarterPlayerScripts

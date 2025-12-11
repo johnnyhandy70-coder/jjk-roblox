@@ -37,10 +37,10 @@ A complete Jujutsu Kaisen ability system for Roblox with character selection GUI
      - `Config` (from `src/shared/Config.lua`)
      - `CharacterData` (from `src/shared/CharacterData.lua`)
      - `AbilityData` (from `src/shared/AbilityData.lua`)
+     - `AbilityHandler` (from `src/shared/AbilityHandler.lua`)
 
 2. **Server Scripts**:
-   - Place `PlayerData.server.lua` in ServerScriptService
-   - Place `AbilityHandler.server.lua` in ServerScriptService
+   - Place `PlayerData.server.lua` in ServerScriptService as a Script
 
 3. **Client Scripts**:
    - Create a folder in StarterPlayer > StarterPlayerScripts (or StarterGui)
@@ -86,7 +86,6 @@ Config.Admins = {
 ```
 src/
 ├── server/
-│   ├── AbilityHandler.server.lua    - Handles ability execution and effects
 │   └── PlayerData.server.lua        - Manages player data, CE, and cooldowns
 ├── client/
 │   ├── CharacterSelectGUI.client.lua - Character selection menu
@@ -95,6 +94,7 @@ src/
 ├── shared/
 │   ├── CharacterData.lua             - Character definitions
 │   ├── AbilityData.lua               - Ability data and utilities
+│   ├── AbilityHandler.lua            - Handles ability execution and effects (VFX)
 │   └── Config.lua                    - Configuration and whitelist
 ```
 
