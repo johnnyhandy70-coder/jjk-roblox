@@ -153,8 +153,11 @@ UseAbilityEvent.OnServerEvent:Connect(function(player, abilityIndex)
 	
 	print(string.format("[JJK] %s used %s (Damage: %d)", player.Name, ability.Name, ability.Damage))
 	
-	-- TODO: Implement actual ability effects here
-	-- This would include visual effects, damage dealing, etc.
+	-- Execute ability through AbilityHandler
+	local AbilityHandler = require(script.Parent.AbilityHandler)
+	if AbilityHandler then
+		AbilityHandler.ExecuteAbility(player, ability, playerData.CurrentCharacter, characterData)
+	end
 end)
 
 -- Get player data function

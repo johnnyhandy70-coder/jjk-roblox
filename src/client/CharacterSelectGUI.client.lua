@@ -33,14 +33,33 @@ screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
 
+-- Toggle Button (Small button to show/hide menu)
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 40, 0, 40)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 150)
+toggleButton.BorderSizePixel = 2
+toggleButton.BorderColor3 = Color3.fromRGB(150, 150, 200)
+toggleButton.Text = "☰"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.TextSize = 24
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 8)
+toggleCorner.Parent = toggleButton
+
 -- Main Frame (Top-left scroll menu)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 250, 0, 400)
-mainFrame.Position = UDim2.new(0, 10, 0, 10)
+mainFrame.Position = UDim2.new(0, 60, 0, 10)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 mainFrame.BorderSizePixel = 2
 mainFrame.BorderColor3 = Color3.fromRGB(100, 100, 150)
+mainFrame.Visible = false
 mainFrame.Parent = screenGui
 
 -- Add corner rounding
@@ -174,5 +193,37 @@ end
 
 listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateCanvasSize)
 UpdateCanvasSize()
+
+-- Toggle button functionality
+local menuVisible = false
+
+toggleButton.MouseButton1Click:Connect(function()
+	menuVisible = not menuVisible
+	mainFrame.Visible = menuVisible
+	
+	-- Visual feedback
+	if menuVisible then
+		toggleButton.BackgroundColor3 = Color3.fromRGB(150, 150, 200)
+	else
+		toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 150)
+	end
+end)
+
+-- Hover effect for toggle button
+toggleButton.MouseEnter:Connect(function()
+	if menuVisible then
+		toggleButton.BackgroundColor3 = Color3.fromRGB(170, 170, 220)
+	else
+		toggleButton.BackgroundColor3 = Color3.fromRGB(120, 120, 170)
+	end
+end)
+
+toggleButton.MouseLeave:Connect(function()
+	if menuVisible then
+		toggleButton.BackgroundColor3 = Color3.fromRGB(150, 150, 200)
+	else
+		toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 150)
+	end
+end)
 
 print("[JJK GUI] Character selection GUI initialized for", player.Name, "(Admin:", tostring(isAdmin) .. ")")
