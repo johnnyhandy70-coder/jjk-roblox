@@ -25,11 +25,18 @@ local GetAbilityInfoFunction = Instance.new("RemoteFunction")
 GetAbilityInfoFunction.Name = "GetAbilityInfo"
 GetAbilityInfoFunction.Parent = RemoteEventsFolder
 
+local AbilityEffectEvent = Instance.new("RemoteEvent")
+AbilityEffectEvent.Name = "AbilityEffect"
+AbilityEffectEvent.Parent = RemoteEventsFolder
+
 -- Load shared modules
 local SharedFolder = ReplicatedStorage:WaitForChild("JJKShared")
 local Config = require(SharedFolder:WaitForChild("Config"))
 local CharacterData = require(SharedFolder:WaitForChild("CharacterData"))
 local AbilityData = require(SharedFolder:WaitForChild("AbilityData"))
+
+-- Load AbilityHandler module
+local AbilityHandler = require(script.Parent.AbilityHandler)
 
 -- Player data storage
 local PlayerDataStore = {}
@@ -154,10 +161,7 @@ UseAbilityEvent.OnServerEvent:Connect(function(player, abilityIndex)
 	print(string.format("[JJK] %s used %s (Damage: %d)", player.Name, ability.Name, ability.Damage))
 	
 	-- Execute ability through AbilityHandler
-	local AbilityHandler = require(script.Parent.AbilityHandler)
-	if AbilityHandler then
-		AbilityHandler.ExecuteAbility(player, ability, playerData.CurrentCharacter, characterData)
-	end
+	AbilityHandler.ExecuteAbility(player, ability, playerData.CurrentCharacter, characterData)
 end)
 
 -- Get player data function

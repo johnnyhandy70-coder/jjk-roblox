@@ -1,23 +1,10 @@
--- Server Script: AbilityHandler.server.lua
+-- Server ModuleScript: AbilityHandler.lua
 -- Handles ability execution, effects, and damage dealing with detailed VFX
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
-
--- Wait for remotes to be created
-local RemoteEventsFolder = ReplicatedStorage:WaitForChild("JJKRemotes")
-
--- Load shared modules
-local SharedFolder = ReplicatedStorage:WaitForChild("JJKShared")
-local CharacterData = require(SharedFolder:WaitForChild("CharacterData"))
-local AbilityData = require(SharedFolder:WaitForChild("AbilityData"))
-
--- Create remote for ability effects
-local AbilityEffectEvent = Instance.new("RemoteEvent")
-AbilityEffectEvent.Name = "AbilityEffect"
-AbilityEffectEvent.Parent = RemoteEventsFolder
 
 local AbilityHandler = {}
 
@@ -503,8 +490,14 @@ function AbilityHandler.ExecuteAbility(player, ability, characterName, character
 		ability.Damage
 	))
 	
-	-- Fire client event for visual effects
-	AbilityEffectEvent:FireAllClients(player, ability, characterName)
+	-- Get remote event for firing to clients
+	local RemoteEventsFolder = ReplicatedStorage:FindFirstChild("JJKRemotes")
+	if RemoteEventsFolder then
+		local AbilityEffectEvent = RemoteEventsFolder:FindFirstChild("AbilityEffect")
+		if AbilityEffectEvent then
+			AbilityEffectEvent:FireAllClients(player, ability, characterName)
+		end
+	end
 	
 	-- Character-specific VFX
 	if characterName == "Gojo" or characterName == "GojoAdmin" then
@@ -646,7 +639,5 @@ function AbilityHandler.ExecuteAbility(player, ability, characterName, character
 		print(string.format("[JJK] %s used CC: %s", player.Name, ability.Name))
 	end
 end
-
-print("[JJK] AbilityHandler server initialized with VFX system")
 
 return AbilityHandler
