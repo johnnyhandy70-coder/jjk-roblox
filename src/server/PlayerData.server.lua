@@ -68,12 +68,12 @@ end
 -- Update CE regeneration
 local function UpdateCERegeneration()
 	while true do
-		wait(1) -- Update every second
+		task.wait(1) -- Update every second
 		
 		for userId, data in pairs(PlayerDataStore) do
 			if data.CurrentCE < data.MaxCE then
 				-- Check if enough time has passed since last ability use
-				local timeSinceLastUse = tick() - data.LastAbilityUse
+				local timeSinceLastUse = os.clock() - data.LastAbilityUse
 				if timeSinceLastUse >= Config.CE.RegenDelay then
 					data.CurrentCE = math.min(data.CurrentCE + Config.CE.RegenRate, data.MaxCE)
 				end
@@ -81,7 +81,7 @@ local function UpdateCERegeneration()
 			
 			-- Update cooldowns
 			for abilityIndex, cooldownEnd in pairs(data.Cooldowns) do
-				if tick() >= cooldownEnd then
+				if os.clock() >= cooldownEnd then
 					data.Cooldowns[abilityIndex] = nil
 				end
 			end
@@ -125,7 +125,7 @@ UseAbilityEvent.OnServerEvent:Connect(function(player, abilityIndex)
 	-- Check if ability can be used
 	local cooldownRemaining = 0
 	if playerData.Cooldowns[abilityIndex] then
-		cooldownRemaining = playerData.Cooldowns[abilityIndex] - tick()
+		cooldownRemaining = playerData.Cooldowns[abilityIndex] - os.clock()
 		if cooldownRemaining < 0 then
 			cooldownRemaining = 0
 			playerData.Cooldowns[abilityIndex] = nil
@@ -147,8 +147,8 @@ UseAbilityEvent.OnServerEvent:Connect(function(player, abilityIndex)
 	-- Use ability
 	if not playerData.IsAdmin then
 		playerData.CurrentCE = playerData.CurrentCE - ability.CECost
-		playerData.Cooldowns[abilityIndex] = tick() + ability.Cooldown
-		playerData.LastAbilityUse = tick()
+		playerData.Cooldowns[abilityIndex] = os.clock() + ability.Cooldown
+		playerData.LastAbilityUse = os.clock()
 	end
 	
 	print(string.format("[JJK] %s used %s (Damage: %d)", player.Name, ability.Name, ability.Damage))
@@ -212,6 +212,6 @@ for _, player in ipairs(Players:GetPlayers()) do
 end
 
 -- Start CE regeneration loop
-spawn(UpdateCERegeneration)
+task.spawn(UpdateCERegeneration)
 
 print("[JJK] PlayerData server initialized")

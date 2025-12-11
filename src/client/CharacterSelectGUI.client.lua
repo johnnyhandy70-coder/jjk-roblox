@@ -132,10 +132,12 @@ local function CreateCharacterButton(characterName, displayName, layoutOrder)
 		SelectCharacterEvent:FireServer(characterName)
 		print("[JJK GUI] Selected character:", displayName)
 		
-		-- Visual feedback
-		button.BackgroundColor3 = Color3.fromRGB(100, 150, 100)
-		wait(0.2)
-		button.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+		-- Visual feedback (non-blocking)
+		task.spawn(function()
+			button.BackgroundColor3 = Color3.fromRGB(100, 150, 100)
+			task.wait(0.2)
+			button.BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+		end)
 	end)
 	
 	return button

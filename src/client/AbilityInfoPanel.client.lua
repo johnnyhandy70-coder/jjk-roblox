@@ -291,9 +291,9 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- Update panel periodically when open
-spawn(function()
+task.spawn(function()
 	while true do
-		wait(1)
+		task.wait(1)
 		if panelOpen then
 			UpdateAbilityPanel()
 		end
