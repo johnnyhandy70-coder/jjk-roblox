@@ -1518,231 +1518,134 @@ end
 
 
 -- ==========================================
--- VFX SYSTEM PART 2 - Continuing from line 1651
--- Adding: Flame Arrow, Slash Barrage, Malevolent Shrine, all Megumi, Yuji, Todo
+-- SUKUNA: DISMANTLE VFX - PART 2
 -- ==========================================
+local function CreateDismantleVFX(attackerPos, targetPosition)
+-- Rapid succession of slashes (10 slashes)
+for i = 1, 10 do
+task.spawn(function()
+task.wait(i * 0.08) -- Very rapid succession
 
--- SUKUNA: FLAME ARROW (already partially added, completing here)
-local function CreateFlameArrowVFX(attackerPos, targetPosition)
-	-- Charging flames at caster
-	local chargeLayers = CreateMultiLayerSphere({
-		Position = attackerPos + Vector3.new(0, 2, 0),
-		Layers = 4,
-		BaseSize = 3,
-		SizeIncrement = 0.8,
-		Color = Color3.fromRGB(255, 120, 0),
-		Transparency = 0.4,
-		Material = Enum.Material.Neon
-	})
-	
-	for i, layer in ipairs(chargeLayers) do
-		task.spawn(function()
-			TweenService:Create(layer, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				Size = layer.Size * 1.5,
-				Transparency = 0.2
-			}):Play()
-		end)
-	end
-	
-	-- Fire particles during charge
-	for i = 1, 8 do
-		local chargePart = Instance.new("Part")
-		chargePart.Size = Vector3.new(1, 1, 1)
-		chargePart.Position = attackerPos + Vector3.new(0, 2, 0)
-		chargePart.Anchored = true
-		chargePart.CanCollide = false
-		chargePart.Transparency = 1
-		chargePart.Parent = workspace
-		
-		local fireConfig = {
-			Lifetime = NumberRange.new(0.5, 1),
-			Rate = 100,
-			Speed = NumberRange.new(5, 15),
-			SpreadAngle = Vector2.new(45, 45),
-			Rotation = NumberRange.new(0, 360),
-			RotSpeed = NumberRange.new(-200, 200),
-			Colors = {
-				{Time = 0, Color = Color3.fromRGB(255, 200, 0)},
-				{Time = 0.5, Color = Color3.fromRGB(255, 100, 0)},
-				{Time = 1, Color = Color3.fromRGB(200, 0, 0)}
-			},
-			Sizes = {
-				{Time = 0, Size = 1.5},
-				{Time = 0.5, Size = 2.5},
-				{Time = 1, Size = 0.5}
-			},
-			Transparencies = {
-				{Time = 0, Transparency = 0.4},
-				{Time = 0.7, Transparency = 0.6},
-				{Time = 1, Transparency = 1}
-			},
-			Texture = "rbxasset://textures/particles/fire_main.dds"
-		}
-		
-		local emitter = CreateParticleEmitter(fireConfig)
-		emitter.Parent = chargePart
-		CleanupEffect(chargePart, 2)
-	end
-	
-	task.wait(1)
-	
-	-- Clear charge effects
-	for _, layer in ipairs(chargeLayers) do
-		TweenService:Create(layer, TweenInfo.new(0.2), {Transparency = 1}):Play()
-		CleanupEffect(layer, 0.3)
-	end
-	
-	-- Create arrow projectile
-	local arrow = Instance.new("Part")
-	arrow.Size = Vector3.new(2, 2, 8)
-	arrow.CFrame = CFrame.new(attackerPos + Vector3.new(0, 2, 0), targetPosition)
-	arrow.Anchored = true
-	arrow.CanCollide = false
-	arrow.Material = Enum.Material.Neon
-	arrow.Color = Color3.fromRGB(255, 150, 0)
-	arrow.Transparency = 0.2
-	arrow.Parent = workspace
-	
-	local arrowLight = Instance.new("PointLight")
-	arrowLight.Color = Color3.fromRGB(255, 150, 0)
-	arrowLight.Brightness = 15
-	arrowLight.Range = 25
-	arrowLight.Parent = arrow
-	
-	-- Arrow trail particles
-	local arrowTrailPart = Instance.new("Part")
-	arrowTrailPart.Size = Vector3.new(1, 1, 1)
-	arrowTrailPart.Transparency = 1
-	arrowTrailPart.Anchored = true
-	arrowTrailPart.CanCollide = false
-	arrowTrailPart.Parent = arrow
-	
-	local trailConfig = {
-		Lifetime = NumberRange.new(0.5, 1),
-		Rate = 300,
-		Speed = NumberRange.new(0, 5),
-		SpreadAngle = Vector2.new(20, 20),
-		Colors = {
-			{Time = 0, Color = Color3.fromRGB(255, 200, 0)},
-			{Time = 0.5, Color = Color3.fromRGB(255, 100, 0)},
-			{Time = 1, Color = Color3.fromRGB(150, 0, 0)}
-		},
-		Sizes = {
-			{Time = 0, Size = 2},
-			{Time = 0.5, Size = 3},
-			{Time = 1, Size = 0.5}
-		},
-		Transparencies = {
-			{Time = 0, Transparency = 0.3},
-			{Time = 1, Transparency = 1}
-		},
-		Texture = "rbxasset://textures/particles/fire_main.dds"
-	}
-	
-	local trailEmitter = CreateParticleEmitter(trailConfig)
-	trailEmitter.Parent = arrowTrailPart
-	
-	-- Animate arrow travel
-	local direction = (targetPosition - (attackerPos + Vector3.new(0, 2, 0))).Unit
-	for i = 1, 30 do
-		task.wait(0.02)
-		local progress = i / 30
-		local currentPos = attackerPos + Vector3.new(0, 2, 0) + (direction * progress * (targetPosition - attackerPos).Magnitude)
-		arrow.CFrame = CFrame.new(currentPos, currentPos + direction)
-	end
-	
-	-- Impact explosion
-	trailEmitter.Enabled = false
-	
-	local explosionLayers = CreateMultiLayerSphere({
-		Position = targetPosition,
-		Layers = 8,
-		BaseSize = 8,
-		SizeIncrement = 2,
-		Color = Color3.fromRGB(255, 100, 0),
-		Transparency = 0.3,
-		Material = Enum.Material.Neon
-	})
-	
-	for i, layer in ipairs(explosionLayers) do
-		task.spawn(function()
-			task.wait(i * 0.05)
-			TweenService:Create(layer, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-				Size = layer.Size * 3,
-				Transparency = 1
-			}):Play()
-			CleanupEffect(layer, 1)
-		end)
-	end
-	
-	-- Fire explosion particles
-	for i = 1, 10 do
-		local explosionPart = Instance.new("Part")
-		explosionPart.Size = Vector3.new(1, 1, 1)
-		explosionPart.Position = targetPosition + Vector3.new(math.random(-5, 5), math.random(-3, 3), math.random(-5, 5))
-		explosionPart.Anchored = true
-		explosionPart.CanCollide = false
-		explosionPart.Transparency = 1
-		explosionPart.Parent = workspace
-		
-		local explosionConfig = {
-			Lifetime = NumberRange.new(1, 2),
-			Rate = 500,
-			Speed = NumberRange.new(20, 40),
-			SpreadAngle = Vector2.new(180, 180),
-			Rotation = NumberRange.new(0, 360),
-			RotSpeed = NumberRange.new(-300, 300),
-			Colors = {
-				{Time = 0, Color = Color3.fromRGB(255, 255, 200)},
-				{Time = 0.3, Color = Color3.fromRGB(255, 150, 0)},
-				{Time = 0.7, Color = Color3.fromRGB(200, 50, 0)},
-				{Time = 1, Color = Color3.fromRGB(100, 0, 0)}
-			},
-			Sizes = {
-				{Time = 0, Size = 2},
-				{Time = 0.4, Size = 4},
-				{Time = 1, Size = 1}
-			},
-			Transparencies = {
-				{Time = 0, Transparency = 0.2},
-				{Time = 0.8, Transparency = 0.7},
-				{Time = 1, Transparency = 1}
-			},
-			Texture = "rbxasset://textures/particles/fire_main.dds"
-		}
-		
-		local emitter = CreateParticleEmitter(explosionConfig)
-		emitter.Parent = explosionPart
-		emitter.Enabled = true
-		
-		task.wait(0.6)
-		emitter.Enabled = false
-		CleanupEffect(explosionPart, 2)
-	end
-	
-	-- Explosion shockwaves
-	for i = 1, 8 do
-		task.spawn(function()
-			task.wait(i * 0.15)
-			local shockConfig = {
-				MaxRadius = 20 + i * 3,
-				Color = Color3.fromRGB(255, 120, 0),
-				Duration = 1,
-				Thickness = 1.2,
-				Height = 1,
-				RingCount = 1,
-				EnableParticles = true,
-				EnableGroundEffect = true
-			}
-			CreateAdvancedShockwave(targetPosition, shockConfig)
-		end)
-	end
-	
-	CleanupEffect(arrow, 0.5)
+-- Create slash mark
+local slash = Instance.new("Part")
+slash.Size = Vector3.new(5, 0.3, 0.8)
+slash.CFrame = CFrame.new(targetPosition) * CFrame.Angles(
+math.rad(math.random(-45, 45)),
+math.rad(math.random(-180, 180)),
+math.rad(math.random(-30, 30))
+) * CFrame.new(math.random(-4, 4), math.random(-3, 3), math.random(-2, 2))
+slash.Anchored = true
+slash.CanCollide = false
+slash.Material = Enum.Material.Neon
+slash.Color = Color3.fromRGB(255, 50, 50)
+slash.Transparency = 0.3
+slash.Parent = workspace
+
+-- Slash glow
+local light = Instance.new("PointLight")
+light.Color = Color3.fromRGB(255, 50, 50)
+light.Brightness = 5
+light.Range = 12
+light.Parent = slash
+
+-- Slash trail effect
+local trail = Instance.new("Part")
+trail.Size = Vector3.new(0.3, 0.3, 6)
+trail.CFrame = slash.CFrame * CFrame.new(0, 0, 3)
+trail.Anchored = true
+trail.CanCollide = false
+trail.Material = Enum.Material.Neon
+trail.Color = Color3.fromRGB(255, 100, 100)
+trail.Transparency = 0.5
+trail.Parent = workspace
+
+-- Animate slash appearance
+local slashTween = TweenService:Create(slash, TweenInfo.new(0.15), {
+Transparency = 0,
+Size = Vector3.new(6, 0.4, 1)
+})
+slashTween:Play()
+
+-- Animate slash disappearance
+task.wait(0.2)
+local fadeTween = TweenService:Create(slash, TweenInfo.new(0.4), {
+Transparency = 1,
+Size = Vector3.new(7, 0.2, 0.5)
+})
+fadeTween:Play()
+
+-- Fade trail
+TweenService:Create(trail, TweenInfo.new(0.3), {Transparency = 1}):Play()
+
+CleanupEffect(slash, 0.8)
+CleanupEffect(trail, 0.5)
+end)
 end
 
--- Note: Due to token/response limits, committing Part 2 progress
--- Next prompt will continue with Slash Barrage, Malevolent Shrine, Megumi, Yuji, Todo
--- Current progress: ~2,150 lines (43% to 5k goal)
+-- Cut particles (multiple emitters)
+for i = 1, 6 do
+task.spawn(function()
+task.wait(i * 0.15)
+
+local cutPart = Instance.new("Part")
+cutPart.Size = Vector3.new(1, 1, 1)
+cutPart.Position = targetPosition + Vector3.new(
+math.random(-3, 3),
+math.random(-2, 2),
+math.random(-3, 3)
+)
+cutPart.Anchored = true
+cutPart.CanCollide = false
+cutPart.Transparency = 1
+cutPart.Parent = workspace
+
+local cutConfig = {
+Lifetime = NumberRange.new(0.3, 0.6),
+Rate = 200,
+Speed = NumberRange.new(10, 25),
+SpreadAngle = Vector2.new(180, 180),
+Colors = {
+{Time = 0, Color = Color3.fromRGB(255, 255, 255)},
+{Time = 0.5, Color = Color3.fromRGB(200, 50, 50)},
+{Time = 1, Color = Color3.fromRGB(150, 0, 0)}
+},
+Sizes = {
+{Time = 0, Size = 0.3},
+{Time = 0.5, Size = 0.8},
+{Time = 1, Size = 0.1}
+},
+Transparencies = {
+{Time = 0, Transparency = 0.3},
+{Time = 1, Transparency = 1}
+}
+}
+
+local emitter = CreateParticleEmitter(cutConfig)
+emitter.Parent = cutPart
+emitter.Enabled = true
+
+task.wait(0.4)
+emitter.Enabled = false
+CleanupEffect(cutPart, 1)
+end)
+end
+
+-- Shockwave clusters
+for i = 1, 4 do
+task.spawn(function()
+task.wait(i * 0.25)
+local shockConfig = {
+MaxRadius = 8 + i * 2,
+Color = Color3.fromRGB(255, 80, 80),
+Duration = 0.5,
+Thickness = 0.5,
+Height = 0.3,
+RingCount = 1,
+EnableParticles = true
+}
+CreateAdvancedShockwave(targetPosition, shockConfig)
+end)
+end
+end
 
 return AbilityHandler
