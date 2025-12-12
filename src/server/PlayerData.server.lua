@@ -30,11 +30,35 @@ AbilityEffectEvent.Name = "AbilityEffect"
 AbilityEffectEvent.Parent = RemoteEventsFolder
 
 -- Load shared modules
-local SharedFolder = ReplicatedStorage:WaitForChild("JJKShared")
-local Config = require(SharedFolder:WaitForChild("Config"))
-local CharacterData = require(SharedFolder:WaitForChild("CharacterData"))
-local AbilityData = require(SharedFolder:WaitForChild("AbilityData"))
-local AbilityHandler = require(SharedFolder:WaitForChild("AbilityHandler"))
+local SharedFolder = ReplicatedStorage:WaitForChild("JJKShared", 10)
+if not SharedFolder then
+	error("[JJK ERROR] Cannot find 'JJKShared' folder in ReplicatedStorage. Please create it and add the required ModuleScripts. See INSTALLATION.md for setup instructions.")
+end
+
+local Config = require(SharedFolder:WaitForChild("Config", 5))
+local CharacterData = require(SharedFolder:WaitForChild("CharacterData", 5))
+local AbilityData = require(SharedFolder:WaitForChild("AbilityData", 5))
+
+-- Load AbilityHandler with error handling
+local AbilityHandler
+local abilityHandlerModule = SharedFolder:WaitForChild("AbilityHandler", 5)
+if abilityHandlerModule then
+	local success, result = pcall(function()
+		return require(abilityHandlerModule)
+	end)
+	if success then
+		AbilityHandler = result
+		print("[JJK] AbilityHandler loaded successfully")
+	else
+		warn("[JJK ERROR] Failed to load AbilityHandler:", result)
+		warn("[JJK] Abilities will not have visual effects. Check that AbilityHandler is a ModuleScript in ReplicatedStorage/JJKShared")
+	end
+else
+	warn("[JJK ERROR] AbilityHandler module not found in ReplicatedStorage/JJKShared")
+	warn("[JJK] Please create a ModuleScript named 'AbilityHandler' in ReplicatedStorage/JJKShared")
+	warn("[JJK] Copy code from src/shared/AbilityHandler.lua")
+	warn("[JJK] Abilities will work but without visual effects")
+end
 
 -- Player data storage
 local PlayerDataStore = {}
@@ -158,8 +182,12 @@ UseAbilityEvent.OnServerEvent:Connect(function(player, abilityIndex)
 	
 	print(string.format("[JJK] %s used %s (Damage: %d)", player.Name, ability.Name, ability.Damage))
 	
-	-- Execute ability through AbilityHandler
-	AbilityHandler.ExecuteAbility(player, ability, playerData.CurrentCharacter, characterData)
+	-- Execute ability through AbilityHandler if available
+	if AbilityHandler and AbilityHandler.ExecuteAbility then
+		AbilityHandler.ExecuteAbility(player, ability, playerData.CurrentCharacter, characterData)
+	else
+		warn("[JJK] AbilityHandler not loaded - ability used without VFX")
+	end
 end)
 
 -- Get player data function
